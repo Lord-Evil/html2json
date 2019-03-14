@@ -1,0 +1,14 @@
+{
+	"name":"html2json",
+	"description":"A tiny API server that retrives pages and converts them to JSON. CSS selector could be used to retrive particular parts of the page. Supported GET and POST(JSON) methods",
+	"author": {
+		"name": "Evil Satanson",
+		"email": "Lord_Evil@om-webmasters.org"
+	},
+	"dependencies": {
+		"request":"2.79.0",
+		"express":"4.13.3",
+		"body-parser":"1.14.1",
+		"jsdom":"9.9.1"
+	}
+}

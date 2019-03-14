@@ -1,0 +1,102 @@
+<html>
+	<head>
+		<title>JSON API</title>
+		<link rel="stylesheet" href="ext/railscasts.css">
+		<link rel="stylesheet" href="ext/bootstrap.min.css">
+		<script type="text/javascript" src="ext/highlight.pack.js"></script>
+		<script type="text/javascript" src="ext/jquery.min.js"></script>
+		<style type="text/css">
+		h3{
+			color:green;
+		}
+		#html2json label.method-selection{
+			vertical-align: top;
+		}
+		#html2json .control-area{
+			display: none;
+		}
+		#html2json input[type=radio]{
+			display: none;
+		}
+		#html2json input[type=radio]:checked + div{
+			background-color: green;
+		}
+		#html2json input[type=radio]:checked + div + .control-area{
+			display: block;
+		}
+		</style>
+	</head>
+	<body onload="hljs.highlightBlock(code)">
+	<script>
+	function printJSON(obj){
+		code.innerHTML=JSON.stringify(obj,null,4);
+		hljs.highlightBlock(code)
+	}
+	function getPage(){
+		$.get("/request?url="+html2json.url.value+"&selector="+html2json.selector.value,(data)=>{
+			if(data.status!="error")
+				printJSON(data.response);
+			else
+			{
+				code.innerHTML='<b style="color:red;">'+data.message+'</b>';
+			}
+		});
+	}
+	function postPage(){
+		var postData=html2json.postPayload.value;
+		try{
+			$.ajax({type: "POST",
+				url:"/request?url="+html2json.url.value+"&selector="+html2json.selector.value,
+				contentType:"application/json",
+				data:postData,
+				success:(data)=>{
+				if(data.status!="error")
+					printJSON(data.response);
+				else
+				{
+					code.innerHTML='<b style="color:red;">'+data.message+'</b>';
+				}
+			}});
+		}catch(er){
+			code.innerHTML='<b style="color:red;">'+er.toString();+'</b>';
+		}
+	}
+	</script>
+	<br>
+	<div class="content">
+		<div class="col-md-3">
+			<form id="html2json" class="form" onsubmit="return false;">
+				<input class="form-control" type="text" name="url" placeholder="Enter site's URL"><br>
+				<input class="form-control" type="text" name="selector" placeholder="Enter css object selector"><br>
+				<div class="row">
+					<div class="col-md-6">
+						<label class="method-selection">
+							<input type="radio" name="requestType" checked value="GET">
+							<div class="btn btn-primary">GET</div>
+							<div class="control-area"><div class="btn btn-info" onclick="getPage()">Send Request!</div></div>
+						</label>
+					</div>
+					<div class="col-md-6">
+					<label class="method-selection">
+						<input type="radio" name="requestType" value="POST">
+						<div class="btn btn-primary">POST</div>
+						<div class="control-area">
+							<input class="form-control" type="text" name="postPayload" placeholder="POST Data(JSON)">
+							<div class="btn btn-info" onclick="postPage()">Send Request!</div>
+						</div>
+					</label>
+					</div>
+				</div>
+				<!-- <br>
+				<input type="button" value="POST" onclick="postPage()"><br> -->
+			</form>
+		</div>
+		<div class="col-md-12">
+			<pre>
+				<code id="code" class="json"></code>
+			</pre>	
+		</div>
+	</div>
+		
+	</body>
+</html>
