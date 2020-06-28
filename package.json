@@ -1,6 +1,9 @@
 {
 	"name": "html2json",
 	"description": "A tiny API server that retrives pages and converts them to JSON. CSS selector could be used to retrive particular parts of the page. Supported GET and POST(JSON) methods",
+	"scripts":{
+		"serve":"node html2json.js"
+	},
 	"author": {
 		"name": "Evil Satanson",
 		"email": "Lord_Evil@om-webmasters.org"

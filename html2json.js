@@ -1,16 +1,17 @@
 #!/usr/bin/node
-var express = require('express');
-var bodyParser = require('body-parser');
-var request=require("request");
+const express = require('express');
+const bodyParser = require('body-parser');
+let request=require("request");
 request = request.defaults({headers:{"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36"}});
-var jsdom = require("jsdom");
-var fs = require("fs");
-var jquery = fs.readFileSync("./lib/jquery.min.js", "utf-8");
-var purl = require('./lib/purl.js');
-var app = express();
-var jsonParser = bodyParser.json({ limit:'100MB' ,extended: false });
-var iconv=require("iconv-lite");
-var fileOptions={
+const jsdom = require("jsdom");
+const fs = require("fs");
+const zlib = require('zlib');
+const jquery = fs.readFileSync("./lib/jquery.min.js", "utf-8");
+const purl = require('./lib/purl.js');
+const app = express();
+const jsonParser = bodyParser.json({ limit:'100MB' ,extended: false });
+const iconv=require("iconv-lite");
+const fileOptions={
   root:"./public"
 };
 app.get('/',function(req,res){
@@ -34,7 +35,7 @@ app.post('/request', jsonParser, function (req, res) {
             res.end(JSON.stringify(response));
           }
         }else{
-          proccessResponse(res,b,query["selector"]);
+          proccessResponse(res,b,r.headers,query["selector"]);
         }
       });
     }catch(er){
@@ -57,7 +58,7 @@ app.get('/request',  function (req, res) {
             res.end(JSON.stringify(response));
           }
         }else{
-          proccessResponse(res,b,query["selector"]);
+          proccessResponse(res,b,r.headers,query["selector"]);
         }
       });
     }catch(er){
@@ -66,11 +67,16 @@ app.get('/request',  function (req, res) {
       res.end(JSON.stringify(response));
     }
 });
-function proccessResponse(res,html,selector){
+function proccessResponse(res,html,headers,selector){
   var response = new Object();
-  if(html.indexOf('content="text/html; charset=windows-1251"')>-1){
-    html=iconv.decode(html,"win1251");
+  if(headers["content-encoding"] && headers["content-encoding"]=='gzip'){
+  	html=zlib.gunzipSync(html);
   }
+  if(headers['content-type'].toLowerCase()=='text/html; charset=windows-1251'){
+    html=iconv.decode(html,"win1251");
+  }else
+    html=iconv.decode(html,"utf-8");
+
   jsdom.env({html:html,src:[jquery],done:(err,window)=>{
     var $=window.$;
     function html2json(selector){
